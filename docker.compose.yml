@@ -20,6 +20,8 @@ services:
       context: ./Order Service
       dockerfile: Dockerfile
     container_name: order-service
+    env_file:
+      - .env
     ports:
       - "5001:5000"
     environment:
@@ -32,13 +34,8 @@ services:
     container_name: customer-service
     ports:
       - "5002:5000"
-    environment:
-      - FLASK_ENV=development
-      - MYSQL_HOST=mysql
-      - MYSQL_PORT=3306
-      - MYSQL_DATABASE=ecommerce_system
-      - MYSQL_USER=myuser
-      - MYSQL_PASSWORD=mypassword
+    env_file:
+      - .env
     depends_on:
       - mysql
 
@@ -49,13 +46,8 @@ services:
     container_name: inventory-service
     ports:
       - "5003:5000"
-    environment:
-      - FLASK_ENV=development
-      - MYSQL_HOST=mysql
-      - MYSQL_PORT=3306
-      - MYSQL_DATABASE=ecommerce_system
-      - MYSQL_USER=myuser
-      - MYSQL_PASSWORD=mypassword
+    env_file:
+      - .env
     depends_on:
       - mysql
 
@@ -66,13 +58,8 @@ services:
     container_name: notification-service
     ports:
       - "5004:5000"
-    environment:
-      - FLASK_ENV=development
-      - MYSQL_HOST=mysql
-      - MYSQL_PORT=3306
-      - MYSQL_DATABASE=ecommerce_system
-      - MYSQL_USER=myuser
-      - MYSQL_PASSWORD=mypassword
+    env_file:
+      - .env
     depends_on:
       - mysql
 
@@ -83,12 +70,7 @@ services:
     container_name: pricing-service
     ports:
       - "5005:5000"
-    environment:
-      - FLASK_ENV=development
-      - MYSQL_HOST=mysql
-      - MYSQL_PORT=3306
-      - MYSQL_DATABASE=ecommerce_system
-      - MYSQL_USER=myuser
-      - MYSQL_PASSWORD=mypassword
+    env_file:
+      - .env
     depends_on:
       - mysql

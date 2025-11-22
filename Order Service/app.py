@@ -1,30 +1,28 @@
 from flask import Flask , request , jsonify
 from flask_sqlalchemy import SQLAlchemy
 from request_schemas import *
+from models import *
 from marshmallow import ValidationError
 import os
 app = Flask(__name__)
 
-# db_user = os.getenv("MYSQL_USER")
-# db_password = os.getenv("MYSQL_PASSWORD")
-# db_host = os.getenv("MYSQL_HOST")
-# db_port = os.getenv("MYSQL_PORT")
-# db_name = os.getenv("MYSQL_DATABASE")
+db_user = os.getenv("MYSQL_USER" , "myuser")
+db_password = os.getenv("MYSQL_PASSWORD", "mypassword")
+db_host = os.getenv("MYSQL_HOST", "localhost")
+db_port = os.getenv("MYSQL_PORT", "3306")
+db_name = os.getenv("MYSQL_DATABASE", "ecommerce_system")
 
-# app.config['SQLALCHEMY_DATABASE_URI'] = f"mysql+mysqlconnector://{db_user}:{db_password}@{db_host}:{db_port}/{db_name}"
-# app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+app.config['SQLALCHEMY_DATABASE_URI'] = f"mysql+mysqlconnector://{db_user}:{db_password}@{db_host}:{db_port}/{db_name}"
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 @app.route("/api/orders/create", methods=["POST"])
 def create_order():
     json_data = request.get_json()
-    print("=== RAW JSON RECEIVED ===")
-    print(json_data)
-
     try:
         data = OrderSchema().load(json_data)
     except ValidationError as err:
         return jsonify({"errors": err.messages}), 400  
-
+    order = Ord
     return jsonify({"message": "Order created successfully", "order": data}), 201
 
 @app.route("/api/orders/<int:order_id>" , methods=["GET"])
