@@ -19,16 +19,13 @@ inventory_service_url=os.getenv("INVENTORY_SERVICE_URL" , "http://localhost:5003
 notification_service_url=os.getenv("NOTIFICATION_SERVICE_URL" , "http://localhost:5004")
 pricing_service_url=os.getenv("PRICING_SERVICE_URL","http://localhost:5005")
 
-app.config['SQLALCHEMY_DATABASE_URI'] = f"mysql+mysqlconnector://{db_user}:{db_password}@{db_host}:{db_port}/{db_name}"
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-
 @app.route("/api/orders/create", methods=["POST"])
 def create_order():
     json_data = request.get_json()
     try:
         data = OrderSchema().load(json_data)
     except ValidationError as err:
-        return jsonify({"errors": err.messages}), 400  
+        return jsonify({"errors": err.messages}), 400
     return jsonify({"message": "Order created successfully", "order": data}), 201
 
 @app.route("/api/orders/<int:order_id>" , methods=["GET"])
