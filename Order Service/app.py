@@ -22,7 +22,6 @@ def create_order():
         data = OrderSchema().load(json_data)
     except ValidationError as err:
         return jsonify({"errors": err.messages}), 400  
-    order = Ord
     return jsonify({"message": "Order created successfully", "order": data}), 201
 
 @app.route("/api/orders/<int:order_id>" , methods=["GET"])

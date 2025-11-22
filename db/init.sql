@@ -11,6 +11,14 @@ CREATE TABLE inventory (
     last_updated TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
+CREATE TABLE orders (
+    order_id INT PRIMARY KEY AUTO_INCREMENT,
+    customer_id INT NOT NULL,
+    order_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    total_amount DECIMAL(10,2) NOT NULL,
+    status VARCHAR(50) DEFAULT 'Pending'
+);
+
 -- Pricing rules
 CREATE TABLE pricing_rules (
     rule_id INT PRIMARY KEY AUTO_INCREMENT,
@@ -56,7 +64,7 @@ INSERT INTO inventory (product_name, quantity_available, unit_price) VALUES
 -- Insert customers
 INSERT INTO customers (name, email, phone, loyalty_points) VALUES
 ('Ahmed Hassan', 'ahmed@example.com', '01012345678', 100),
-('Sara Mohamed', 'sara@example.com', '01098765432', 250),
+('Sara Ahmed', 'sara@example.com', '01098765432', 250),
 ('Omar Ali', 'omar@example.com', '01055555555', 50);
 
 -- Insert pricing rules
@@ -64,3 +72,6 @@ INSERT INTO pricing_rules (product_id, min_quantity, discount_percentage) VALUES
 (1, 5, 10.00),
 (2, 10, 15.00),
 (3, 10, 12.00);
+
+INSERT INTO tax_rates (region, tax_rate) VALUES
+('EG', 14.00);
