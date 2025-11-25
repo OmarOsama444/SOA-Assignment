@@ -16,7 +16,7 @@ db_name = os.getenv("MYSQL_DATABASE", "ecommerce_system")
 
 order_service_url=os.getenv("ORDER_SERVICE_URL" , "http://localhost:5001")
 customer_service_url=os.getenv("CUSTOMER_SERVICE_URL" , "http://localhost:5002")
-inventory_service_url=os.getenv("INVENTORY_SERVICE_URL" , "http://localhost:5001")
+inventory_service_url=os.getenv("INVENTORY_SERVICE_URL" , "http://localhost:5003")
 notification_service_url=os.getenv("NOTIFICATION_SERVICE_URL" , "http://localhost:5004")
 pricing_service_url=os.getenv("PRICING_SERVICE_URL","http://localhost:5005")
 
