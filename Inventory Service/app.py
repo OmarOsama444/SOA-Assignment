@@ -46,6 +46,7 @@ def check_inventory(product_id):
 @app.route("/api/inventory/update", methods=["POST"])
 def adjust_inventory_from_order():
     order = request.get_json()
+    print(f"DEBUG: Received data: {order}")
     if not order or "products" not in order:
         return jsonify({"error": "Invalid order payload"}), 400
     try:
@@ -56,24 +57,32 @@ def adjust_inventory_from_order():
             password=db_password,
             database=db_name
         )
+        if(conn.is_connected()==True):
+            print("DEBUG: Connected to database")
         cursor = conn.cursor(dictionary=True)
         for p in order["products"]:
             product_id = p.get("product_id")
             qty = p.get("quantity", 0)
             cursor.execute("SELECT quantity_available FROM inventory WHERE product_id = %s", (product_id,))
             row = cursor.fetchone()
-            if not row:
-                continue
+            print(f"DEBUG: Inventory row for product_id {product_id}: {row}")
+            if row is None:
+                cursor.close()
+                conn.close()
+                return jsonify({"message": f"Product with product_id {product_id} not found"}), 404
             current = row.get("quantity_available", 0)
             if(current - qty)<0:
+                cursor.close()
+                conn.close()
                 return jsonify({"message": f"Insufficient inventory for product_id {product_id}"}), 400
             new_qty = current - qty
             cursor.execute("UPDATE inventory SET quantity_available = %s WHERE product_id = %s", (new_qty, product_id))
         conn.commit()
-        conn.close()
-        cursor.close()
     except mysql.connector.Error as err:
         return jsonify({"message": "Database error", "error": str(err)}), 500
+    finally:
+        cursor.close()
+        conn.close()
     return jsonify({"message": "Inventory updated"}), 200
 
 

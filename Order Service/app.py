@@ -16,7 +16,7 @@ db_name = os.getenv("MYSQL_DATABASE", "ecommerce_system")
 
 order_service_url=os.getenv("ORDER_SERVICE_URL" , "http://localhost:5001")
 customer_service_url=os.getenv("CUSTOMER_SERVICE_URL" , "http://localhost:5002")
-inventory_service_url=os.getenv("INVENTORY_SERVICE_URL" , "http://localhost:5003")
+inventory_service_url=os.getenv("INVENTORY_SERVICE_URL" , "http://localhost:5001")
 notification_service_url=os.getenv("NOTIFICATION_SERVICE_URL" , "http://localhost:5004")
 pricing_service_url=os.getenv("PRICING_SERVICE_URL","http://localhost:5005")
 
@@ -25,15 +25,22 @@ def create_order():
     json_data = request.get_json()
     try:
         data = OrderSchema().load(json_data)
+        print(f"DEBUG: Received data: {json_data}")
     except ValidationError as err:
         return jsonify({"errors": err.messages}), 400
     # Notify Inventory Service
     try:
-        requests.post(f"{inventory_service_url}/api/inventory/update", json=data, timeout=2)
+        r = requests.post(f"{inventory_service_url}/api/inventory/update", json=data, timeout=2)
+        if r.status_code == 404:
+            return jsonify({"message": "One or more products not found in inventory"}), 404
+        if r.status_code == 400:
+            return jsonify({"message": "Insufficient inventory for one or more products"}), 400
+        elif r.status_code == 200:
+            return jsonify({"message": "Order created successfully", "order": data}), 201
     except Exception as e:
-        app.logger.warning(f"Failed to notify inventory service: {e}")
+        app.logger.warning(f"Failed to create order: {e}")
 
-    return jsonify({"message": "Order created successfully", "order": data}), 201
+    
 
 @app.route("/api/orders/<int:order_id>" , methods=["GET"])
 def get_order(order_id):
