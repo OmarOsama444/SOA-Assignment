@@ -48,7 +48,6 @@ def adjust_inventory_from_order():
     order = request.get_json()
     if not order or "products" not in order:
         return jsonify({"error": "Invalid order payload"}), 400
-
     try:
         conn = mysql.connector.connect(
             host=db_host,
@@ -67,7 +66,7 @@ def adjust_inventory_from_order():
                 continue
             current = row.get("quantity_available", 0)
             if(current - qty)<0:
-                return jsonify({"message": "Insufficient inventory for product_id {}".format(product_id)}), 400
+                return jsonify({"message": f"Insufficient inventory for product_id {product_id}"}), 400
             new_qty = current - qty
             cursor.execute("UPDATE inventory SET quantity_available = %s WHERE product_id = %s", (new_qty, product_id))
         conn.commit()
