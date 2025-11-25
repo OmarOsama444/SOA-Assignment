@@ -40,7 +40,7 @@ def GetCustomerProfile(customer_id):
     else:
         return jsonify({"message": "Customer not found"}), 404
     
-@app.route("api/customers/<int:customer_id>/orders" , methods=["GET"])
+@app.route("/api/customers/<int:customer_id>/orders" , methods=["GET"])
 def GetCustomerOrders(customer_id):
     response = requests.get(f"{order_service_url}/api/orders/customer/{customer_id}")
     if response.status_code != 200:
