@@ -1,2 +1,3 @@
-./venv
-./db/data
+venv/
+*/venv/
+db/data/
