@@ -1,4 +1,5 @@
 from flask import Flask , request , jsonify
+import requests
 from flask_sqlalchemy import SQLAlchemy
 import mysql.connector
 from mysql.connector import Error
@@ -26,6 +27,12 @@ def create_order():
         data = OrderSchema().load(json_data)
     except ValidationError as err:
         return jsonify({"errors": err.messages}), 400
+    # Notify Inventory Service
+    try:
+        requests.post(f"{inventory_service_url}/api/inventory/update", json=data, timeout=2)
+    except Exception as e:
+        app.logger.warning(f"Failed to notify inventory service: {e}")
+
     return jsonify({"message": "Order created successfully", "order": data}), 201
 
 @app.route("/api/orders/<int:order_id>" , methods=["GET"])
@@ -37,7 +44,7 @@ def get_order(order_id):
             user=db_user,
             password=db_password,
             database=db_name
-        );
+        )
         cursor = conn.cursor(dictionary=True)
         cursor.execute("SELECT * FROM orders WHERE order_id = %s", (order_id,))
         order = cursor.fetchone()
