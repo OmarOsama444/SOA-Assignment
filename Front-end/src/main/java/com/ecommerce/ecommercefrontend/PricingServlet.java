@@ -16,7 +16,13 @@ import jakarta.servlet.http.HttpServletResponse;
 public class PricingServlet extends HttpServlet {
 
     // Python Pricing Service URL (Port 5005)
-    private static final String PRICING_URL = "http://pricing-service:5000/api/pricing/calculate";
+    private String PRICING_URL = null;
+
+    public PricingServlet() {
+        String baseUrl = System.getenv("PRICING_SERVICE_URL") != null ? System.getenv("PRICING_SERVICE_URL")
+                : "http://localhost:5005";
+        PRICING_URL = String.format("%s/api/pricing/calculate", baseUrl);
+    }
 
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {

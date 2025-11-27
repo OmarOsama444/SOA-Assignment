@@ -15,7 +15,13 @@ import jakarta.servlet.ServletException;
 @WebServlet("/order")
 public class orderServlet extends HttpServlet {
 
-    private static final String FLASK_URL = "http://order-service:5000/api/orders";
+    private String FLASK_URL = null;
+
+    public orderServlet() {
+        String baseUrl = System.getenv("ORDER_SERVICE_URL") != null ? System.getenv("ORDER_SERVICE_URL")
+                : "http://localhost:5001";
+        FLASK_URL = String.format("%s/api/orders", baseUrl);
+    }
 
     // Handle GET request (Retrieve Order Details)
     protected void doGet(HttpServletRequest request, HttpServletResponse response)

@@ -14,15 +14,20 @@ import jakarta.servlet.http.HttpServletResponse;
 
 @WebServlet("/inventory")
 public class InventoryServlet extends HttpServlet {
+    private String FLASK_URL = null;
 
-    private static final String FLASK_URL = "http://inventory-service:5000/api/inventory";
+    public InventoryServlet() {
+        String baseUrl = System.getenv("INVENTORY_SERVICE_URL") != null ? System.getenv("INVENTORY_SERVICE_URL")
+                : "http://localhost:5003";
+        FLASK_URL = String.format("%s/api/inventory", baseUrl);
+    }
 
     // 1. Handle GET Request (Check Stock)
     // Matches Flask: @app.route("/api/inventory/check/<int:product_id>",
     // methods=["GET"])
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-
+        System.getenv("ORDER_SERVICE_URL");
         String productId = request.getParameter("product_id");
         String resultJson = "";
 
