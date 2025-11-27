@@ -39,6 +39,7 @@ def create_order():
             return jsonify({"message": "Order created successfully", "order": data}), 201
     except Exception as e:
         app.logger.warning(f"Failed to create order: {e}")
+        return jsonify({"message": "Failed to create order due to inventory service error"}), 500
 
     
 

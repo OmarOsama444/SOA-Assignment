@@ -12,11 +12,10 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import jakarta.servlet.ServletException;
 
-
 @WebServlet("/order")
 public class orderServlet extends HttpServlet {
 
-    private static final String FLASK_URL = "http://localhost:5001/api/orders";
+    private static final String FLASK_URL = "http://order-service:5000/api/orders";
 
     // Handle GET request (Retrieve Order Details)
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
@@ -59,11 +58,11 @@ public class orderServlet extends HttpServlet {
         String total = request.getParameter("total_amount");
 
         // 2. Construct JSON String manually (Or use a library like Gson/Jackson)
-        // Format: {"customer_id": 1, "total_amount": 100, "products": [{"product_id": 1, "quantity": 1}]}
+        // Format: {"customer_id": 1, "total_amount": 100, "products": [{"product_id":
+        // 1, "quantity": 1}]}
         String jsonInputString = String.format(
                 "{\"customer_id\": %s, \"total_amount\": %s, \"products\": [{\"product_id\": %s, \"quantity\": %s}]}",
-                custId, total, prodId, quantity
-        );
+                custId, total, prodId, quantity);
 
         String resultJson = "";
 
@@ -86,9 +85,8 @@ public class orderServlet extends HttpServlet {
             BufferedReader br = new BufferedReader(
                     new InputStreamReader(
                             (conn.getResponseCode() >= 200 && conn.getResponseCode() < 300)
-                                    ? conn.getInputStream() : conn.getErrorStream()
-                    )
-            );
+                                    ? conn.getInputStream()
+                                    : conn.getErrorStream()));
 
             StringBuilder responseStr = new StringBuilder();
             String responseLine = null;

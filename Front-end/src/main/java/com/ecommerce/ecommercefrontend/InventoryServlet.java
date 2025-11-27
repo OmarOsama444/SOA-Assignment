@@ -15,9 +15,11 @@ import jakarta.servlet.http.HttpServletResponse;
 @WebServlet("/inventory")
 public class InventoryServlet extends HttpServlet {
 
-        private static final String FLASK_URL = "http://localhost:5003/api/inventory";
+    private static final String FLASK_URL = "http://inventory-service:5000/api/inventory";
+
     // 1. Handle GET Request (Check Stock)
-    // Matches Flask: @app.route("/api/inventory/check/<int:product_id>", methods=["GET"])
+    // Matches Flask: @app.route("/api/inventory/check/<int:product_id>",
+    // methods=["GET"])
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
@@ -34,8 +36,7 @@ public class InventoryServlet extends HttpServlet {
                 int status = conn.getResponseCode();
                 // Read response (Success or Error)
                 BufferedReader br = new BufferedReader(new InputStreamReader(
-                        (status < 300) ? conn.getInputStream() : conn.getErrorStream()
-                ));
+                        (status < 300) ? conn.getInputStream() : conn.getErrorStream()));
 
                 StringBuilder sb = new StringBuilder();
                 String line;
@@ -70,8 +71,7 @@ public class InventoryServlet extends HttpServlet {
         // Structure: {"products": [{"product_id": X, "quantity": Y}]}
         String jsonPayload = String.format(
                 "{\"products\": [{\"product_id\": %s, \"quantity\": %s}]}",
-                prodId, qty
-        );
+                prodId, qty);
 
         try {
             URL url = new URL(FLASK_URL + "/update");
@@ -90,8 +90,7 @@ public class InventoryServlet extends HttpServlet {
             // Get Response
             int status = conn.getResponseCode();
             BufferedReader br = new BufferedReader(new InputStreamReader(
-                    (status < 300) ? conn.getInputStream() : conn.getErrorStream()
-            ));
+                    (status < 300) ? conn.getInputStream() : conn.getErrorStream()));
 
             StringBuilder sb = new StringBuilder();
             String line;

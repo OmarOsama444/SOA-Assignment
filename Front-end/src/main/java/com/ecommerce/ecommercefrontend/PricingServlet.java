@@ -1,6 +1,5 @@
 package com.ecommerce.ecommercefrontend;
 
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -17,7 +16,7 @@ import jakarta.servlet.http.HttpServletResponse;
 public class PricingServlet extends HttpServlet {
 
     // Python Pricing Service URL (Port 5005)
-    private static final String PRICING_URL = "http://localhost:5005/api/pricing/calculate";
+    private static final String PRICING_URL = "http://pricing-service:5000/api/pricing/calculate";
 
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
@@ -43,7 +42,8 @@ public class PricingServlet extends HttpServlet {
         }
 
         if (prodId2 != null && !prodId2.isEmpty()) {
-            if (!jsonBuilder.toString().endsWith("[")) jsonBuilder.append(",");
+            if (!jsonBuilder.toString().endsWith("["))
+                jsonBuilder.append(",");
             jsonBuilder.append(String.format("{\"product_id\": %s, \"quantity\": %s}", prodId2, qty2));
         }
 
@@ -68,8 +68,7 @@ public class PricingServlet extends HttpServlet {
 
             int status = conn.getResponseCode();
             BufferedReader br = new BufferedReader(new InputStreamReader(
-                    (status < 300) ? conn.getInputStream() : conn.getErrorStream()
-            ));
+                    (status < 300) ? conn.getInputStream() : conn.getErrorStream()));
 
             StringBuilder sb = new StringBuilder();
             String line;
