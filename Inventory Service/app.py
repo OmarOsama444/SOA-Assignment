@@ -30,7 +30,7 @@ def check_inventory(product_id):
                 database=db_name
         )
         cursor = conn.cursor(dictionary=True)
-        cursor.execute("SELECT quantity_available FROM inventory WHERE product_id = %s", (product_id,))
+        cursor.execute("SELECT * FROM inventory WHERE product_id = %s", (product_id,))
         result = cursor.fetchone()
         cursor.close()
         conn.close()
@@ -38,7 +38,9 @@ def check_inventory(product_id):
         return jsonify({"message": "Database error", "error": str(err)}), 500
     if result:
         quantity = result.get("quantity_available", 0)
-        return jsonify({"product_id": product_id, "quantity": quantity}), 200
+        name = result.get("product_name", "Unknown")
+        price = result.get("unit_price", 0.0)
+        return jsonify({"product_id": product_id, "product_name": name, "quantity": quantity, "unit_price": price}), 200
     else:
         return jsonify({"error": "Product not found"}), 404
 
@@ -99,5 +101,23 @@ def adjust_inventory_from_order():
             conn.close()
 
 
+@app.route("/api/inventory/products", methods=["GET"])
+def get_all_Products():
+    try:
+        conn = mysql.connector.connect(
+            host=db_host,
+            port=db_port,
+            user=db_user,
+            password=db_password,
+            database=db_name
+        )
+        cursor = conn.cursor(dictionary=True)
+        cursor.execute("SELECT * FROM inventory")
+        products = cursor.fetchall()
+        return jsonify(products), 200
+    except mysql.connector.Error as err:
+        return jsonify({"message": "Database error", "error": str(err)}), 500
+    
+    
 if __name__ == "__main__":
     app.run(debug=True,host="0.0.0.0", port=5000)

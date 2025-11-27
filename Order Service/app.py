@@ -25,7 +25,6 @@ def create_order():
     json_data = request.get_json()
     try:
         data = OrderSchema().load(json_data)
-        print(f"DEBUG: Received data: {json_data}")
     except ValidationError as err:
         return jsonify({"errors": err.messages}), 400
     # Notify Inventory Service
