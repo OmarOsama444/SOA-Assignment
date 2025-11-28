@@ -32,10 +32,11 @@ def check_inventory(product_id):
         cursor = conn.cursor(dictionary=True)
         cursor.execute("SELECT * FROM inventory WHERE product_id = %s", (product_id,))
         result = cursor.fetchone()
-        cursor.close()
-        conn.close()
     except mysql.connector.Error as err:
         return jsonify({"message": "Database error", "error": str(err)}), 500
+    finally:
+        cursor.close()
+        conn.close()
     if result:
         quantity = result.get("quantity_available", 0)
         name = result.get("product_name", "Unknown")
