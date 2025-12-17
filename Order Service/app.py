@@ -32,10 +32,24 @@ def create_order():
         r = requests.post(f"{inventory_service_url}/api/inventory/update", json=data, timeout=2)
         if r.status_code == 404:
             return jsonify({"message": "One or more products not found in inventory"}), 404
-        if r.status_code == 400:
+        elif r.status_code == 400:
             return jsonify({"message": "Insufficient inventory for one or more products"}), 400
         elif r.status_code == 200:
-            return jsonify({"message": "Order created successfully", "order": data}), 201
+            price_request = {
+                "products": data["products"],
+            }
+            r2 = requests.post(f"{pricing_service_url}/api/pricing/calculate", json=price_request, timeout=2)
+            if r2.status_code == 200:
+                pricing_info = r2.json()
+                total_amount = pricing_info.get("total_amount", 0.0)
+                response = {
+                    "customer_id": data["customer_id"],
+                    "products": data["products"],
+                    "total_amount": total_amount
+                }
+                return jsonify({"message": "Order created successfully", "order": response}), 201
+            else:
+                return jsonify({"message": "Failed to calculate price"}), 500
     except Exception as e:
         app.logger.warning(f"Failed to create order: {e}")
         return jsonify({"message": "Failed to create order due to inventory service error"}), 500
