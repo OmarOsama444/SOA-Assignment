@@ -1,9 +1,6 @@
 from flask import Flask , request , jsonify, render_template
 import requests
-from flask_sqlalchemy import SQLAlchemy
 import mysql.connector
-from mysql.connector import Error
-from marshmallow import ValidationError
 import os
 app = Flask(__name__)
 db_user = os.getenv("MYSQL_USER" , "myuser")
@@ -49,21 +46,35 @@ def calculate_price():
                 cursor.execute(
                     "select discount_percentage, min_quantity from pricing_rules where product_id = %s", (product_id,))
                 rules = cursor.fetchall()
-                if rules is None:
-                    continue
-                for rule in rules:
-                    discount_percentage, min_quantity = rule
-                    if qty >= min_quantity:
-                        discount_amount = (unit_price * qty) * (float(discount_percentage) / 100)
-                        total_price -= discount_amount
-                        response["products"].append({
+                if rules is None or len(rules) < 1 :
+                    response["products"].append({
                             "product_id": product_id,
                             "unit_price": unit_price,
                             "quantity": qty,
-                            "discount_applied": float(discount_percentage),
-                            "total_price_after_discount": (unit_price * qty) - discount_amount
+                            "discount_applied": 0,
+                            "total_price_after_discount": (unit_price * qty)
                         })
-                        break  # Apply only the first matching rule
+                    continue
+                rule = rules[0]
+                discount_percentage, min_quantity = rule["discount_percentage"] , rule["min_quantity"]
+                if qty >= min_quantity:
+                    discount_amount = (unit_price * qty) * (float(discount_percentage) / 100)
+                    total_price -= discount_amount
+                    response["products"].append({
+                        "product_id": product_id,
+                        "unit_price": unit_price,
+                        "quantity": qty,
+                        "discount_applied": float(discount_percentage),
+                        "total_price_after_discount": (unit_price * qty) - discount_amount
+                    })
+                else:
+                    response["products"].append({
+                                "product_id": product_id,
+                                "unit_price": unit_price,
+                                "quantity": qty,
+                                "discount_applied": 0,
+                                "total_price_after_discount": (unit_price * qty)
+                            }) 
             else:
                 return jsonify({"error": f"Product {product_id} not found"}), 404
         except Exception as e:
