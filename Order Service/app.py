@@ -5,6 +5,8 @@ import mysql.connector
 from mysql.connector import Error
 from request_schemas import *
 from marshmallow import ValidationError
+import random
+from datetime import datetime
 import os
 app = Flask(__name__)
 
@@ -19,6 +21,8 @@ customer_service_url=os.getenv("CUSTOMER_SERVICE_URL" , "http://localhost:5002")
 inventory_service_url=os.getenv("INVENTORY_SERVICE_URL" , "http://localhost:5003")
 notification_service_url=os.getenv("NOTIFICATION_SERVICE_URL" , "http://localhost:5004")
 pricing_service_url=os.getenv("PRICING_SERVICE_URL","http://localhost:5005")
+
+
 
 @app.route("/api/orders/create", methods=["POST"])
 def create_order():
@@ -45,8 +49,10 @@ def create_order():
                 response = {
                     "customer_id": data["customer_id"],
                     "products": data["products"],
-                    "total_amount": total_amount
+                    "total_amount": total_amount,
+                    "status": "Pending"
                 }
+                save_order_to_db(response)
                 return jsonify({"message": "Order created successfully", "order": response}), 201
             else:
                 return jsonify({"message": "Failed to calculate price"}), 500
@@ -76,9 +82,6 @@ def get_order(order_id):
     finally:
         cursor.close()
         conn.close()
-    if not order:
-        return jsonify({"message": "Order not found"}), 404
-    else:
         return jsonify(order), 200
     
 @app.route("/api/orders/customer/<int:customer_id>" , methods=["GET"])
@@ -100,6 +103,34 @@ def get_orders_by_customer(customer_id):
         cursor.close()
         conn.close()
     return jsonify(orders), 200
+
+
+def save_order_to_db(order_data):
+    try:
+        conn = mysql.connector.connect(
+            host=db_host,
+            port=db_port,
+            user=db_user,
+            password=db_password,
+            database=db_name
+        )
+        cursor = conn.cursor()
+        insert_query = """
+                INSERT INTO orders (customer_id, total_amount, status)
+                VALUES (%s, %s, %s)
+                """
+        cursor.execute(insert_query, (
+            order_data["customer_id"],
+            order_data["total_amount"],
+            order_data["status"]
+        ))
+        conn.commit()
+    except mysql.connector.Error as err:
+        app.logger.error(f"Database error: {err}")
+        raise
+    finally:
+        cursor.close()
+        conn.close()
 
 if __name__ == "__main__":
     app.run(debug=True,host="0.0.0.0", port=5000)
@@ -148,3 +179,4 @@ def create_order(order_id):
     except Exception as e:
         app.logger.warning(f"Failed to update order: {e}")
         return jsonify({"message": "Failed to update order status"}), 500
+
