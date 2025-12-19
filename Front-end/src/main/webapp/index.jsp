@@ -1,26 +1,45 @@
-<%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
+<%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<%@ page import="java.util.*" %>
+
 <!DOCTYPE html>
 <html>
 <head>
-    <title>JSP - Hello World</title>
+    <title>E-Commerce Store - Products</title>
+    <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
-<h1><%= "Hello World!" %></h1>
-<br/>
-<a href="${pageContext.request.contextPath}/hello-servlet">Hello Servlet</a>
-<a href="${pageContext.request.contextPath}/servlet2">Hello Servlet</a>
-<a href="${pageContext.request.contextPath}/servlet3">Hello Servlet</a>
+<div class="container">
+    <header>
+        <h1>Welcome to E-Commerce Store</h1>
+    </header>
 
+    <main>
+        <h2>Available Products</h2>
 
+        <div class="product-grid">
+            <%
+                List<Map<String, Object>> products =
+                        (List<Map<String, Object>>) request.getAttribute("products");
 
-<h3>JSP Page Links:</h3>
-<ul>
-    <li><a href="create_order.jsp">Create Order</a></li>
-    <li><a href="inventory_check.jsp">Check inventory</a></li>
-    <li><a href="pricing_check.jsp">Pricing</a></li>
-    <li><a href="inventory_check.jsp">View Page 2</a></li>
-    <li><a href="page3.jsp">View Page 3</a></li>
-</ul>
+                if (products != null) {
+                    for (Map<String, Object> product : products) {
+            %>
+            <div class="product-card">
+                <h3><%= product.get("product_name") %></h3>
+                <p class="price">$<%= product.get("unit_price") %></p>
+                <p class="stock">In Stock: <%= product.get("quantity_available") %></p>
+            </div>
+            <%
+                    }
+                }
+            %>
+        </div>
+
+        <div>
+            <a href="checkout" class="submit-btn">Place Order</a>
+        </div>
+
+    </main>
+</div>
 </body>
 </html>
-
