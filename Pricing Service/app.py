@@ -56,7 +56,7 @@ def calculate_price():
                         })
                     continue
                 rule = rules[0]
-                discount_percentage, min_quantity = rule["discount_percentage"] , rule["min_quantity"]
+                discount_percentage, min_quantity = rule
                 if qty >= min_quantity:
                     discount_amount = (unit_price * qty) * (float(discount_percentage) / 100)
                     total_price -= discount_amount

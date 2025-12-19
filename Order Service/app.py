@@ -34,7 +34,7 @@ def create_order():
         return jsonify({"message": "Customer not found"}), 404
     # Notify Inventory Service
     try:
-        r = requests.post(f"{inventory_service_url}/api/inventory/update", json=data, timeout=2)
+        r = requests.post(f"{inventory_service_url}/api/inventory/update", json={ "products" : data["products"] }, timeout=2)
         if r.status_code == 404:
             return jsonify({"message": "One or more products not found in inventory"}), 404
         elif r.status_code == 400:
