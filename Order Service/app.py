@@ -136,7 +136,7 @@ if __name__ == "__main__":
     app.run(debug=True,host="0.0.0.0", port=5000)
 
 @app.route("/api/orders/<int:order_id>/status", methods=["PUT"])
-def create_order(order_id):
+def update_order_status(order_id):
     json_data = request.get_json()
     try:
         data = StatusUpdateSchema().load(json_data)

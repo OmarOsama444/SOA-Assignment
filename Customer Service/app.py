@@ -17,6 +17,26 @@ inventory_service_url=os.getenv("INVENTORY_SERVICE_URL" , "http://localhost:5003
 notification_service_url=os.getenv("NOTIFICATION_SERVICE_URL" , "http://localhost:5004")
 pricing_service_url=os.getenv("PRICING_SERVICE_URL","http://localhost:5005")
 
+@app.route("/api/customers" , methods=["GET"])
+def get_customers():
+    try :
+        conn = mysql.connector.connect(
+            host=db_host,
+            port=db_port,
+            user=db_user,
+            password=db_password,
+            database=db_name
+        )
+        cursor = conn.cursor(dictionary=True)
+        cursor.execute("SELECT * FROM customers")
+        customers = cursor.fetchall()
+    except mysql.connector.Error as err:
+        return jsonify({"message": "Database error", "error": str(err)}), 500
+    finally:
+        cursor.close()
+        conn.close()
+    return jsonify(customers), 200
+
 @app.route("/api/customers/<int:customer_id>" , methods=["GET"])
 def GetCustomerProfile(customer_id):
     try :
