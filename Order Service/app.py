@@ -5,8 +5,6 @@ import mysql.connector
 from mysql.connector import Error
 from request_schemas import *
 from marshmallow import ValidationError
-import random
-from datetime import datetime
 import os
 app = Flask(__name__)
 
@@ -31,6 +29,9 @@ def create_order():
         data = OrderSchema().load(json_data)
     except ValidationError as err:
         return jsonify({"errors": err.messages}), 400
+    customer = requests.get(f"{customer_service_url}/api/customers/{data['customer_id']}", timeout=2)
+    if customer.status_code != 200:
+        return jsonify({"message": "Customer not found"}), 404
     # Notify Inventory Service
     try:
         r = requests.post(f"{inventory_service_url}/api/inventory/update", json=data, timeout=2)
@@ -45,11 +46,10 @@ def create_order():
             r2 = requests.post(f"{pricing_service_url}/api/pricing/calculate", json=price_request, timeout=2)
             if r2.status_code == 200:
                 pricing_info = r2.json()
-                total_amount = pricing_info.get("total_amount", 0.0)
                 response = {
                     "customer_id": data["customer_id"],
-                    "products": data["products"],
-                    "total_amount": total_amount,
+                    "products": pricing_info["products"],
+                    "total_amount": pricing_info["total_amount"],
                     "status": "Pending"
                 }
                 save_order_to_db(response)
@@ -132,7 +132,7 @@ def save_order_to_db(order_data):
         cursor.close()
         conn.close()
 
-        
+
 @app.route("/api/orders/<int:order_id>/status", methods=["PUT"])
 def update_order_status(order_id):
     json_data = request.get_json()

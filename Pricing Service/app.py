@@ -33,6 +33,10 @@ def calculate_price():
                 )
     cursor = conn.cursor()
     total_price = 0.0
+    response = {
+        "products" : [],
+        "total_amount": 0.0
+    }
     for p in order["products"]:
         product_id = p.get("product_id")
         qty = p.get("quantity", 0)
@@ -52,6 +56,13 @@ def calculate_price():
                     if qty >= min_quantity:
                         discount_amount = (unit_price * qty) * (float(discount_percentage) / 100)
                         total_price -= discount_amount
+                        response["products"].append({
+                            "product_id": product_id,
+                            "unit_price": unit_price,
+                            "quantity": qty,
+                            "discount_applied": float(discount_percentage),
+                            "total_price_after_discount": (unit_price * qty) - discount_amount
+                        })
                         break  # Apply only the first matching rule
             else:
                 return jsonify({"error": f"Product {product_id} not found"}), 404
@@ -60,7 +71,8 @@ def calculate_price():
             return jsonify({"message": "Failed to calculate price due to inventory service error"}), 500
     cursor.close()
     conn.close()
-    return jsonify({"total_amount": total_price}), 200
+    response["total_amount"] = total_price
+    return jsonify(response), 200
 
 if __name__ == "__main__":
     app.run(debug=True,host="0.0.0.0", port=5000)
