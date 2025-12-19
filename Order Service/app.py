@@ -69,6 +69,8 @@ def get_order(order_id):
         cursor = conn.cursor(dictionary=True)
         cursor.execute("SELECT * FROM orders WHERE order_id = %s", (order_id,))
         order = cursor.fetchone()
+        if not order :
+            return jsonify({"message": "Order not found"}), 404
     except mysql.connector.Error as err:
         return jsonify({"message": "Database error", "error": str(err)}), 500
     finally:
@@ -101,3 +103,48 @@ def get_orders_by_customer(customer_id):
 
 if __name__ == "__main__":
     app.run(debug=True,host="0.0.0.0", port=5000)
+
+@app.route("/api/orders/<int:order_id>/status", methods=["PUT"])
+def create_order(order_id):
+    json_data = request.get_json()
+    try:
+        data = StatusUpdateSchema().load(json_data)
+    except ValidationError as err:
+        return jsonify({"errors": err.messages}), 400
+    # Notify Inventory Service
+    try:
+        status_dict = {
+            "Pending" : 0 ,
+            "Approved" : 1 ,
+            "Shipped" : 2 ,
+            "Delivered" : 3
+        } 
+        status = data["status"]
+        conn = mysql.connector.connect(
+            host=db_host,
+            port=db_port,
+            user=db_user,
+            password=db_password,
+            database=db_name
+        )
+        cursor = conn.cursor(dictionary=True)
+        cursor.execute("SELECT * FROM orders WHERE order_id = %s", (order_id,))
+        order = cursor.fetchone()
+        if not order :
+            return jsonify({"message": "Order not found"}), 404
+        old_status = order["status"]
+        if ( status_dict[old_status] + 1 ) != status_dict[status] :
+            return jsonify({"message": f"Cant change status from {old_status} to {status}"}), 400
+        cursor.execute(
+            "UPDATE orders SET status = %s WHERE order_id = %s",
+            (status, order_id)
+        )
+        conn.commit()
+        return jsonify({
+            "message": "Order status updated successfully",
+            "old_status": old_status,
+            "new_status": status
+        }), 200
+    except Exception as e:
+        app.logger.warning(f"Failed to update order: {e}")
+        return jsonify({"message": "Failed to update order status"}), 500

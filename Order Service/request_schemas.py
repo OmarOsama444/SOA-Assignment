@@ -12,3 +12,12 @@ class OrderSchema(Schema):
         validate=validate.Length(min=1)
     )
     total_amount = fields.Float(required=True, validate=validate.Range(min=0.01))
+
+class StatusUpdateSchema(Schema):
+    status = fields.Str(
+        required=True,
+        validate=validate.OneOf(
+            ["Approved", "Shipped", "Delivered"],
+            error="Status must be one of: pending, approved, shipped, delivered"
+        )
+    )
