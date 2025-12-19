@@ -132,9 +132,7 @@ def save_order_to_db(order_data):
         cursor.close()
         conn.close()
 
-if __name__ == "__main__":
-    app.run(debug=True,host="0.0.0.0", port=5000)
-
+        
 @app.route("/api/orders/<int:order_id>/status", methods=["PUT"])
 def update_order_status(order_id):
     json_data = request.get_json()
@@ -179,4 +177,9 @@ def update_order_status(order_id):
     except Exception as e:
         app.logger.warning(f"Failed to update order: {e}")
         return jsonify({"message": "Failed to update order status"}), 500
+    
+if __name__ == "__main__":
+    app.run(debug=True,host="0.0.0.0", port=5000)
+
+
 
