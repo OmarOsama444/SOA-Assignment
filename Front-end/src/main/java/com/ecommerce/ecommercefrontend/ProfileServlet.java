@@ -17,19 +17,13 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
-@WebServlet("/checkout")
-public class CheckoutServlet extends HttpServlet {
+@WebServlet("/profile")
+public class ProfileServlet extends HttpServlet {
     private final HttpClient httpClient = HttpClient.newHttpClient();
     private final Gson gson = new Gson();
-    private final String INVENTORY_URL;
     private final String CUSTOMERS_URL;
 
-    public CheckoutServlet() {
-        String inventoryBase = System.getenv("INVENTORY_SERVICE_URL") != null
-                ? System.getenv("INVENTORY_SERVICE_URL")
-                : "http://localhost:5003";
-        INVENTORY_URL = String.format("%s/api/inventory/products", inventoryBase);
-
+    public ProfileServlet() {
         String customerBase = System.getenv("CUSTOMER_SERVICE_URL") != null
                 ? System.getenv("CUSTOMER_SERVICE_URL")
                 : "http://localhost:5002";
@@ -39,23 +33,8 @@ public class CheckoutServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-
         try {
-            // Load products from Inventory Service
-            HttpRequest productsRequest = HttpRequest.newBuilder()
-                    .uri(URI.create(INVENTORY_URL))
-                    .header("Accept", "application/json")
-                    .GET()
-                    .build();
-
-            HttpResponse<String> productsResponse =
-                    httpClient.send(productsRequest, HttpResponse.BodyHandlers.ofString());
-
-            List<Map<String, Object>> products = gson.fromJson(
-                    productsResponse.body(),
-                    new TypeToken<List<Map<String, Object>>>(){}.getType());
-
-            // Load customers from Customer Service
+            // Load all customers
             HttpRequest customersRequest = HttpRequest.newBuilder()
                     .uri(URI.create(CUSTOMERS_URL))
                     .header("Accept", "application/json")
@@ -69,20 +48,21 @@ public class CheckoutServlet extends HttpServlet {
                     customersResponse.body(),
                     new TypeToken<List<Map<String, Object>>>(){}.getType());
 
-            request.setAttribute("products", products);
             request.setAttribute("customers", customers);
 
-            // Check for error in request parameter
-            String error = request.getParameter("error");
-            if (error != null && !error.trim().isEmpty()) {
-                request.setAttribute("error", error);
+            String customerIdParam = request.getParameter("customer_id");
+            if (customerIdParam != null && !customerIdParam.isEmpty()) {
+                int customerId = (int) Double.parseDouble(customerIdParam);
+                Map<String, Object> selectedCustomer = customers.stream()
+                        .filter(c -> ((Number)c.get("customer_id")).intValue() == customerId)
+                        .findFirst()
+                        .orElse(null);
+                request.setAttribute("selectedCustomer", selectedCustomer);
             }
 
-            request.getRequestDispatcher("checkout.jsp").forward(request, response);
+            request.getRequestDispatcher("profile.jsp").forward(request, response);
 
         } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-            response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Request interrupted");
         } catch (Exception e) {
             response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, e.getMessage());
         }
