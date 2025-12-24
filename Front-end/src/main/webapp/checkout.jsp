@@ -13,36 +13,40 @@
 <body>
 
 <header>
-    <h1>Place Your Order</h1>
-    <nav>
-        <ul>
-            <li><a href="loadInventory">Back to Products</a></li>
-        </ul>
-    </nav>
+    <div class="container nav-container">
+        <nav>
+            <h1>Place Your Order</h1>
+            <ul class="nav-links">
+                <li><a href="loadInventory" class="nav-link">← Back to Products</a></li>
+            </ul>
+        </nav>
+    </div>
 </header>
 
-<main>
+<main class="container fade-in">
     <%
         List<Map<String, Object>> customers = (List<Map<String, Object>>) request.getAttribute("customers");
-        List<Map<String, Object>> products = (List<Map<String, Object>>) request.getAttribute("products");
+        List<Map<String, Object>> selectedProducts = (List<Map<String, Object>>) request.getAttribute("selectedProducts");
+        Double totalAmount = (Double) request.getAttribute("totalAmount");
         String error = (String) request.getAttribute("error");
     %>
 
     <% if (error != null) { %>
-    <div class="error"><%= error %></div>
+    <div class="alert alert-error"><%= error %></div>
     <% } %>
 
-    <% if (customers == null || products == null || customers.isEmpty() || products.isEmpty()) { %>
-    <div class="info-box">
-        <p>Products or customers are not loaded. Please go back to <a href="loadInventory">Products Page</a>.</p>
-    </div>
-    <% } else { %>
+    <form action="placeOrder" method="post" class="card">
+        <input type="hidden" name="total_amount" value="<%= totalAmount %>">
+        
+        <% for (Map<String, Object> product : selectedProducts) { %>
+           <input type="hidden" name="product_id[]" value="<%= product.get("product_id") %>">
+           <input type="hidden" name="quantity[]" value="<%= product.get("selected_quantity") %>">
+        <% } %>
 
-    <form action="placeOrder" method="post" class="checkout-form">
-        <div class="form-section">
-            <h3>Select Customer</h3>
-            <label for="customer_id">Customer:</label>
-            <select name="customer_id" id="customer_id" required>
+        <div class="customer-fields mb-4">
+            <h3>Customer Details</h3>
+            <label for="customer_id">Select Customer:</label>
+            <select name="customer_id" id="customer_id" required class="mt-4">
                 <option value="">-- Choose Customer --</option>
                 <% for (Map<String, Object> customer : customers) { %>
                 <option value="<%= customer.get("customer_id") %>">
@@ -52,26 +56,40 @@
             </select>
         </div>
 
-        <div class="form-section">
-            <h3>Select Quantities for Products</h3>
-            <% for (Map<String, Object> product : products) { %>
-            <div class="product-row">
-                <input type="hidden" name="product_id[]" value="<%= product.get("product_id") %>">
-                <div class="product-info">
-                    <span><%= product.get("product_name") %> - $<%= product.get("unit_price") %> (Stock: <%= product.get("quantity_available") %>)</span>
-                </div>
-                <div class="quantity-group">
-                    <label>Quantity:</label>
-                    <input type="number" name="quantity[]" min="0" value="0">
-                </div>
+        <div class="order-summary-container mb-4">
+            <h3>Order Summary</h3>
+            <div class="table-container checkout-summary">
+                <table>
+                    <thead>
+                    <tr>
+                        <th>Product</th>
+                        <th>Price</th>
+                        <th>Quantity</th>
+                        <th>Total</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <% for (Map<String, Object> product : selectedProducts) { %>
+                    <tr>
+                        <td><%= product.get("product_name") %></td>
+                        <td>$<%= String.format("%.2f", Double.parseDouble(String.valueOf(product.get("unit_price")))) %></td>
+                        <td><%= product.get("selected_quantity") %></td>
+                        <td>$<%= String.format("%.2f", Double.parseDouble(String.valueOf(product.get("total_price_after_discount")))) %></td>
+                    </tr>
+                    <% } %>
+                    </tbody>
+                </table>
             </div>
-            <% } %>
+            <div class="checkout-total">
+                <p class="price-tag">Total: $<%= String.format("%.2f", totalAmount) %></p>
+            </div>
         </div>
 
-        <button type="submit" class="submit-btn">Place Order</button>
+        <div class="flex-between">
+            <a href="loadInventory" class="btn btn-secondary">Cancel</a>
+            <button type="submit" class="btn">Confirm Order</button>
+        </div>
     </form>
-
-    <% } %>
 </main>
 
 </body>

@@ -13,20 +13,24 @@
 <body>
 
 <header>
-    <h1>Order Confirmation</h1>
-    <nav>
-        <ul>
-            <li><a href="loadInventory">Back to products</a></li>
-        </ul>
-    </nav>
+    <div class="container nav-container">
+        <nav>
+            <h1>Order Confirmation</h1>
+            <ul class="nav-links">
+                <li><a href="loadInventory" class="nav-link">← Back to Store</a></li>
+            </ul>
+        </nav>
+    </div>
 </header>
 
-<main>
-    <div class="success-message">
-        <h2>Your order has been placed successfully!</h2>
+<main class="container fade-in">
+    <div class="order-success">
+        <span class="checkmark">✅</span>
+        <h2 class="mb-4">Order Placed Successfully!</h2>
+        <p class="text-muted">Thank you for shopping with us.</p>
     </div>
 
-    <div class="order-details">
+    <div class="card confirmation-card-container">
         <%
           Map<String, Object> orderResponse =
                   (Map<String, Object>) request.getAttribute("order");
@@ -38,44 +42,66 @@
                   (List<Map<String, Object>>) order.get("products");
         %>
 
-        <p><strong>Customer:</strong> <%= order.get("customer_name") %></p>
-        <p><strong>Status:</strong> <%= order.get("status") %></p>
-        <p><strong>Total Amount:</strong> $<%= String.format("%.2f", Double.parseDouble(order.get("total_amount").toString())) %></p>
+        <div class="flex-between mb-4 order-summary-header">
+            <div>
+                <p class="text-muted text-sm">CUSTOMER</p>
+                <p><strong><%= order.get("customer_name") %></strong></p>
+            </div>
+             <div>
+                <p class="text-muted text-sm">STATUS</p>
+                <span class="status-badge <%= order.get("status").toString().toLowerCase() %>">
+                    <%= order.get("status") %>
+                </span>
+            </div>
+            <div>
+                 <p class="text-muted text-sm">TOTAL</p>
+                 <p class="price-tag">$<%= String.format("%.2f", Double.parseDouble(order.get("total_amount").toString())) %></p>
+            </div>
+        </div>
 
-        <h3>Ordered Products</h3>
+        <h3 class="mt-4">Ordered Products</h3>
 
-        <table>
-          <tr>
-            <th>Product</th>
-            <th>Quantity</th>
-            <th>Total Price</th>
-          </tr>
-
-          <%
-            if (products != null) {
-              for (Map<String, Object> p : products) {
-          %>
-          <tr>
-            <td><%= p.get("product_name") %></td>
-            <td><%= p.get("quantity") %></td>
-            <td>$<%= String.format("%.2f", Double.parseDouble(p.get("total_price_after_discount").toString())) %></td>
-          </tr>
-          <%
-            }
-          } else {
-          %>
-          <tr>
-            <td colspan="3">No products found</td>
-          </tr>
-          <%
-            }
-          %>
-        </table>
+        <div class="table-container mt-4">
+            <table>
+              <thead>
+                  <tr>
+                    <th>Product</th>
+                    <th>Quantity</th>
+                    <th>Total Price</th>
+                  </tr>
+              </thead>
+              <tbody>
+              <%
+                if (products != null) {
+                  for (Map<String, Object> p : products) {
+              %>
+              <tr>
+                <td><%= p.get("product_name") %></td>
+                <td><%= p.get("quantity") %></td>
+                <td>$<%= String.format("%.2f", Double.parseDouble(p.get("total_price_after_discount").toString())) %></td>
+              </tr>
+              <%
+                }
+              } else {
+              %>
+              <tr>
+                <td colspan="3" class="text-center text-muted">No products found</td>
+              </tr>
+              <%
+                }
+              %>
+              </tbody>
+            </table>
+        </div>
+        
+        <div class="text-center mt-4">
+             <a href="loadInventory" class="btn">Continue Shopping</a>
+        </div>
     </div>
 </main>
 
-<footer>
-    <a href="loadInventory" class="btn">Back to Products</a>
+<footer class="site-footer">
+    <p>&copy; 2025 E-Commerce Store</p>
 </footer>
 
 </body>

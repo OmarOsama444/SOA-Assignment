@@ -13,46 +13,81 @@
 <body>
 
 <header>
-    <h1>Customer Orders</h1>
-    <nav>
-        <ul>
-            <li><a href="profile">Back to Profile</a></li>
-            <li><a href="loadInventory">Back to Products</a></li>
-        </ul>
-    </nav>
+    <div class="container nav-container">
+        <nav>
+            <h1>Customer Orders</h1>
+            <ul class="nav-links">
+                <li><a href="profile" class="nav-link">Back to Profile</a></li>
+                <li><a href="loadInventory" class="nav-link">Back to Products</a></li>
+            </ul>
+        </nav>
+    </div>
 </header>
 
-<main>
+<main class="container fade-in">
     <%
       List<Map<String, Object>> orders = (List<Map<String, Object>>) request.getAttribute("orders");
+      List<Map<String, Object>> customers = (List<Map<String, Object>>) request.getAttribute("customers");
     %>
 
+    <% if (customers != null) { %>
+    <div class="card mb-4 customer-select-card" style="max-width: 600px; margin: 0 auto;">
+        <h3 class="text-center">Select Customer to View Orders</h3>
+        <form action="userOrders" method="get" class="form-section mt-4">
+            <div class="flex-between gap-4">
+                <select name="customer_id" required>
+                    <option value="">-- Choose Customer --</option>
+                    <% for (Map<String, Object> c : customers) { %>
+                    <option value="<%= c.get("customer_id") %>">
+                        <%= c.get("name") %> - <%= c.get("email") %>
+                    </option>
+                    <% } %>
+                </select>
+                <button type="submit" class="btn">View Orders</button>
+            </div>
+        </form>
+    </div>
+    <% } else { %>
+    
     <% if (orders == null || orders.isEmpty()) { %>
-    <div class="info-box">
+    <div class="card text-center">
       <p>No orders found for this customer.</p>
     </div>
     <% } else { %>
-    <table class="orders-table">
-      <thead>
-      <tr>
-        <th>Order ID</th>
-        <th>Order Date</th>
-        <th>Status</th>
-        <th>Total Amount</th>
-      </tr>
-      </thead>
-      <tbody>
-      <% for (Map<String, Object> order : orders) { %>
-      <tr>
-        <td><%= ((Number)order.get("order_id")).intValue() %></td>
-        <td><%= order.get("order_date") %></td>
-        <td><%= order.get("status") %></td>
-        <td>$<%= order.get("total_amount") %></td>
-      </tr>
-      <% } %>
-      </tbody>
-    </table>
+      <div class="card">
+          <div class="table-container">
+              <table class="orders-table">
+                  <thead>
+                  <tr>
+                    <th>Order ID</th>
+                    <th>Order Date</th>
+                    <th>Total Amount</th>
+                    <th>Status</th>
+                    <!-- Products column removed -->
+                  </tr>
+                  </thead>
+                  <tbody>
+                  <% for (Map<String, Object> order : orders) { 
+                      int orderId = (int) Double.parseDouble(String.valueOf(order.get("order_id")));
+                  %>
+                  <tr>
+                    <td><strong>#<%= orderId %></strong></td>
+                    <td><%= order.get("order_date") %></td>
+                    <td>$<%= String.format("%.2f", Double.parseDouble(String.valueOf(order.get("total_amount")))) %></td>
+                    <td>
+                        <span class="status-badge <%= order.get("status").toString().toLowerCase() %>">
+                            <%= order.get("status") %>
+                        </span>
+                    </td>
+                  </tr>
+                  <% } %>
+                  </tbody>
+              </table>
+          </div>
+      </div>
     <% } %>
+
+    <% } /* End else for customers != null */ %>
 </main>
 
 </body>
