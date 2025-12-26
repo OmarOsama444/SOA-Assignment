@@ -41,7 +41,7 @@ def calculate_price():
             r = requests.get(f"{inventory_service_url}/api/inventory/check/{product_id}", timeout=2)
             if r.status_code == 200:
                 product_info = r.json()
-                unit_price = float(product_info.get("unit_price"))
+                unit_price = round(float(product_info.get("unit_price")), 2)
                 total_price += unit_price * qty
                 cursor.execute(
                     "select discount_percentage, min_quantity from pricing_rules where product_id = %s", (product_id,))
@@ -58,14 +58,14 @@ def calculate_price():
                 rule = rules[0]
                 discount_percentage, min_quantity = rule
                 if qty >= min_quantity:
-                    discount_amount = (unit_price * qty) * (float(discount_percentage) / 100)
+                    discount_amount = round((unit_price * qty) * (float(discount_percentage) / 100), 2)
                     total_price -= discount_amount
                     response["products"].append({
                         "product_id": product_id,
                         "unit_price": unit_price,
                         "quantity": qty,
                         "discount_applied": float(discount_percentage),
-                        "total_price_after_discount": (unit_price * qty) - discount_amount
+                        "total_price_after_discount": round((unit_price * qty) - discount_amount, 2)
                     })
                 else:
                     response["products"].append({
@@ -80,9 +80,15 @@ def calculate_price():
         except Exception as e:
             app.logger.warning(f"Failed to fetch product info for {product_id}: {e}")
             return jsonify({"message": "Failed to calculate price due to inventory service error"}), 500
+    cursor.execute("SELECT tax_rate FROM tax_rates")
+    tax_row = cursor.fetchone()
+
+    tax_rate = float(tax_row[0])
+    tax_amount = round(total_price * (tax_rate / 100), 2)
+    total_price += tax_amount
     cursor.close()
     conn.close()
-    response["total_amount"] = total_price
+    response["total_amount"] = round(total_price, 2)
     return jsonify(response), 200
 
 if __name__ == "__main__":

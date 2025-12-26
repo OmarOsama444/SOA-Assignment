@@ -68,5 +68,28 @@ def GetCustomerOrders(customer_id):
     dummy_orders = response.json()
     return jsonify(dummy_orders), 200
 
+@app.route("/api/customers/<int:customer_id>/loyalty" , methods=["PUT"])
+def UpdateLoyaltyPoints(customer_id):
+    points_to_add = 100
+    try :
+        conn = mysql.connector.connect(
+            host=db_host,
+            port=db_port,
+            user=db_user,
+            password=db_password,
+            database=db_name
+        )
+        cursor = conn.cursor()
+        cursor.execute("UPDATE customers SET loyalty_points = loyalty_points + %s WHERE customer_id = %s",
+                       (points_to_add, customer_id))
+        conn.commit()
+        if cursor.rowcount == 0:
+            return jsonify({"message": "Customer not found"}), 404
+    except mysql.connector.Error as err:
+        return jsonify({"message": "Database error", "error": str(err)}), 500
+    finally:
+        cursor.close()
+        conn.close()
+    return jsonify({"message": "Loyalty points updated successfully"}), 200
 if __name__ == "__main__":
     app.run(debug=True,host="0.0.0.0", port=5000)

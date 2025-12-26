@@ -20,7 +20,7 @@ def home():
 
 @app.route("/api/inventory/check/<int:product_id>", methods=["GET"])
 def check_inventory(product_id):
-    # Connect to the database
+    qty = request.args.get("quantity", default=0, type=int)
     try:
         conn = mysql.connector.connect(
                 host=db_host,
@@ -32,6 +32,11 @@ def check_inventory(product_id):
         cursor = conn.cursor(dictionary=True)
         cursor.execute("SELECT * FROM inventory WHERE product_id = %s", (product_id,))
         result = cursor.fetchone()
+        if result is None:
+            return jsonify({"message": f"Product with product_id {product_id} not found"}), 404
+        current = result.get("quantity_available", 0)
+        if current - qty < 0:
+            return jsonify({"message": f"Insufficient inventory for product_id {product_id}"}), 400
     except mysql.connector.Error as err:
         return jsonify({"message": "Database error", "error": str(err)}), 500
     finally:
@@ -115,7 +120,8 @@ def get_all_Products():
         cursor = conn.cursor(dictionary=True)
         cursor.execute("SELECT * FROM inventory")
         products = cursor.fetchall()
-        return jsonify(products), 200
+        available_products = [product for product in products if product.get("quantity_available", 0) > 0]
+        return jsonify(available_products), 200
     except mysql.connector.Error as err:
         return jsonify({"message": "Database error", "error": str(err)}), 500
     

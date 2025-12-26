@@ -52,7 +52,10 @@ def create_order():
                     "total_amount": pricing_info["total_amount"],
                     "status": "Pending"
                 }
-                save_order_to_db(response)
+                orderid = save_order_to_db(response)
+                requests.put(f"{customer_service_url}/api/customers/{data['customer_id']}/loyalty")
+                requests.post(f"{notification_service_url}/api/notifications/send", 
+                        json={ "order_id": orderid, "customer_id": data["customer_id"] }, timeout=2)
                 return jsonify({"message": "Order created successfully", "order": response}), 201
             else:
                 return jsonify({"message": "Failed to calculate price"}), 500
@@ -124,6 +127,7 @@ def save_order_to_db(order_data):
             order_data["total_amount"],
             order_data["status"]
         ))
+        order_id = cursor.lastrowid
         conn.commit()
     except mysql.connector.Error as err:
         app.logger.error(f"Database error: {err}")
@@ -131,6 +135,8 @@ def save_order_to_db(order_data):
     finally:
         cursor.close()
         conn.close()
+    return order_id
+
 
 
 @app.route("/api/orders/<int:order_id>/status", methods=["PUT"])
