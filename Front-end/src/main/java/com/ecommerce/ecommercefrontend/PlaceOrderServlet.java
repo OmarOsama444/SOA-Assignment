@@ -110,18 +110,18 @@ public class PlaceOrderServlet extends HttpServlet {
       }
 
       // 3. Send Notification
-      JSONObject notificationJson = new JSONObject();
-      notificationJson.put("order_id", orderId);
-      notificationJson.put("customer_id", customerId);
-      notificationJson.put("message",
-          "Your order #" + orderId + " has been placed successfully. Total: $" + totalAmount);
+      // JSONObject notificationJson = new JSONObject();
+      // notificationJson.put("order_id", orderId);
+      // notificationJson.put("customer_id", customerId);
+      // notificationJson.put("message",
+      //     "Your order #" + orderId + " has been placed successfully. Total: $" + totalAmount);
 
-      HttpRequest notificationRequest = HttpRequest.newBuilder()
-          .uri(URI.create(NOTIFICATION_URL))
-          .header("Content-Type", "application/json")
-          .POST(HttpRequest.BodyPublishers.ofString(notificationJson.toString(), StandardCharsets.UTF_8))
-          .build();
-      httpClient.send(notificationRequest, HttpResponse.BodyHandlers.discarding());
+      // HttpRequest notificationRequest = HttpRequest.newBuilder()
+      //     .uri(URI.create(NOTIFICATION_URL))
+      //     .header("Content-Type", "application/json")
+      //     .POST(HttpRequest.BodyPublishers.ofString(notificationJson.toString(), StandardCharsets.UTF_8))
+      //     .build();
+      // httpClient.send(notificationRequest, HttpResponse.BodyHandlers.discarding());
 
       // Fetch Customer Name
       HttpRequest customerInfoRequest = HttpRequest.newBuilder()
