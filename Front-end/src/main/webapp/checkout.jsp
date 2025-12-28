@@ -32,15 +32,15 @@
     %>
 
     <% if (error != null) { %>
-    <div class="alert alert-error"><%= error %></div>
+        <div class="alert alert-error"><%= error %></div>
     <% } %>
 
     <form action="placeOrder" method="post" class="card">
         <input type="hidden" name="total_amount" value="<%= totalAmount %>">
         
         <% for (Map<String, Object> product : selectedProducts) { %>
-           <input type="hidden" name="product_id[]" value="<%= product.get("product_id") %>">
-           <input type="hidden" name="quantity[]" value="<%= product.get("selected_quantity") %>">
+            <input type="hidden" name="product_id[]" value="<%= product.get("product_id") %>">
+            <input type="hidden" name="quantity[]" value="<%= product.get("selected_quantity") %>">
         <% } %>
 
         <div class="customer-fields mb-4">
@@ -49,9 +49,9 @@
             <select name="customer_id" id="customer_id" required class="mt-4">
                 <option value="">-- Choose Customer --</option>
                 <% for (Map<String, Object> customer : customers) { %>
-                <option value="<%= customer.get("customer_id") %>">
-                    <%= customer.get("name") %> - <%= customer.get("email") %>
-                </option>
+                    <option value="<%= customer.get("customer_id") %>">
+                        <%= customer.get("name") %> - <%= customer.get("email") %>
+                    </option>
                 <% } %>
             </select>
         </div>
@@ -61,27 +61,27 @@
             <div class="table-container checkout-summary">
                 <table>
                     <thead>
-                    <tr>
-                        <th>Product</th>
-                        <th>Price</th>
-                        <th>Quantity</th>
-                        <th>Total</th>
-                    </tr>
+                        <tr>
+                            <th>Product</th>
+                            <th>Price</th>
+                            <th>Quantity</th>
+                            <th>Total</th>
+                        </tr>
                     </thead>
                     <tbody>
-                    <% for (Map<String, Object> product : selectedProducts) { %>
-                    <tr>
-                        <td><%= product.get("product_name") %></td>
-                        <td>$<%= String.format("%.2f", Double.parseDouble(String.valueOf(product.get("unit_price")))) %></td>
-                        <td><%= product.get("selected_quantity") %></td>
-                        <td>$<%= String.format("%.2f", Double.parseDouble(String.valueOf(product.get("total_price_after_discount")))) %></td>
-                    </tr>
-                    <% } %>
+                        <% for (Map<String, Object> product : selectedProducts) { %>
+                            <tr>
+                                <td><%= product.get("product_name") %></td>
+                                <td>$<%= String.format("%.2f", Double.parseDouble(String.valueOf(product.get("unit_price")))) %></td>
+                                <td><%= product.get("selected_quantity") %></td>
+                                <td>$<%= String.format("%.2f", Double.parseDouble(String.valueOf(product.get("total_price_after_discount")))) %></td>
+                            </tr>
+                        <% } %>
                     </tbody>
                 </table>
             </div>
             <div class="checkout-total">
-                <p class="price-tag">Total: $<%= String.format("%.2f", totalAmount) %></p>
+                <p class="price-tag">Total Price After Tax: $<%= String.format("%.2f", totalAmount) %></p>
             </div>
         </div>
 

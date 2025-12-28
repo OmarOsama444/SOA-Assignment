@@ -19,6 +19,7 @@ import jakarta.servlet.http.HttpServletResponse;
 
 @WebServlet("/loadInventory")
 public class InventoryServlet extends HttpServlet {
+
     private final HttpClient httpClient = HttpClient.newHttpClient();
     private final Gson gson = new Gson();
     private final String INVENTORY_URL;
@@ -41,14 +42,14 @@ public class InventoryServlet extends HttpServlet {
                     .header("Accept", "application/json")
                     .GET()
                     .build();
-
-            HttpResponse<String> productsResponse =
-                    httpClient.send(productsRequest, HttpResponse.BodyHandlers.ofString());
+                        
+            HttpResponse<String> productsResponse
+                    = httpClient.send(productsRequest, HttpResponse.BodyHandlers.ofString());
 
             // Parse response
             List<Map<String, Object>> products = gson.fromJson(
                     productsResponse.body(),
-                    new TypeToken<List<Map<String, Object>>>(){}.getType());
+                    new TypeToken<List<Map<String, Object>>>() {}.getType());
 
             // Set attribute and forward
             request.setAttribute("products", products);

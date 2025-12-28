@@ -1,11 +1,9 @@
-/* Checkout Specific Styles */
-
 .checkout-summary {
     margin-bottom: 2rem;
 }
 
 .order-summary-container {
-    background-color: rgba(15, 23, 42, 0.5); /* Slightly darker/transparent */
+    background-color: rgba(15, 23, 42, 0.5);
     border: 1px solid var(--border);
     border-radius: var(--radius-md);
     padding: 1.5rem;
@@ -18,7 +16,7 @@
 }
 
 .checkout-summary th {
-    background-color: rgba(16, 185, 129, 0.1); /* Soft emerald background */
+    background-color: rgba(16, 185, 129, 0.1);
     color: var(--primary);
     text-transform: uppercase;
     font-size: 0.8rem;

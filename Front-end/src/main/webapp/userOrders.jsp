@@ -63,7 +63,6 @@
                     <th>Order Date</th>
                     <th>Total Amount</th>
                     <th>Status</th>
-                    <!-- Products column removed -->
                   </tr>
                   </thead>
                   <tbody>
@@ -87,7 +86,7 @@
       </div>
     <% } %>
 
-    <% } /* End else for customers != null */ %>
+    <% } %>
 </main>
 
 </body>

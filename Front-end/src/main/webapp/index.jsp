@@ -52,16 +52,16 @@
 
                     if (products != null) {
                         for (Map<String, Object> product : products) {
-                                // Filter products with quantity > 0
-                                Object quantityObj = product.get("quantity_available");
-                                int quantityAvailable = (int) Double.parseDouble(String.valueOf(quantityObj));
+                            // Filter products with quantity > 0
+                            Object quantityObj = product.get("quantity_available");
+                            int quantityAvailable = (int) Double.parseDouble(String.valueOf(quantityObj));
 
-                                if (quantityAvailable > 0) {
-                                    String productName = product.get("product_name").toString();
-                                    String productIcon = productIcons.getOrDefault(productName, "📦");
+                            if (quantityAvailable > 0) {
+                                String productName = product.get("product_name").toString();
+                                String productIcon = productIcons.getOrDefault(productName, "📦");
 
-                                    Object productIdObj = product.get("product_id");
-                                    int productId = (int) Double.parseDouble(String.valueOf(productIdObj));
+                                Object productIdObj = product.get("product_id");
+                                int productId = (int) Double.parseDouble(String.valueOf(productIdObj));
                 %>
 
                 <div class="card product-card">

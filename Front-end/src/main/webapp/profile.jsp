@@ -75,7 +75,7 @@
         </div>
 
         <% if (selectedCustomer != null) { 
-               int custId = (int) Double.parseDouble(String.valueOf(selectedCustomer.get("customer_id")));
+            int custId = (int) Double.parseDouble(String.valueOf(selectedCustomer.get("customer_id")));
         %>
         <div class="actions text-center mt-4">
             <a href="userOrders?customer_id=<%= custId %>" class="btn btn-secondary w-full">

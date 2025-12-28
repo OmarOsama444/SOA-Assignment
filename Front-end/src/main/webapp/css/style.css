@@ -2,14 +2,13 @@
 @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap');
 
 :root {
-    /* Color Palette - Emerald Green Theme (Dark Mode) */
-    --primary: #10b981; /* Emerald 500 */
-    --primary-hover: #059669; /* Emerald 600 */
-    --secondary: #3b82f6; /* Blue 500 - for accents/info */
-    --background: #0f172a; /* Dark Slate */
-    --surface: #1e293b; /* Slate 800 */
-    --text-main: #f8fafc; /* Slate 50 */
-    --text-muted: #94a3b8; /* Slate 400 */
+    --primary: #10b981;
+    --primary-hover: #059669;
+    --secondary: #3b82f6;
+    --background: #0f172a;
+    --surface: #1e293b;
+    --text-main: #f8fafc;
+    --text-muted: #94a3b8;
     --success: #10b981;
     --error: #ef4444;
     --border: #334155;
